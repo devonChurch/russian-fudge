@@ -1,83 +1,79 @@
 import React, { Component } from "react";
 import gql from "graphql-tag";
-import { graphql } from "react-apollo";
-import { Card, Col, Row, Input, Layout, Spin } from "antd";
-import "antd/dist/antd.css";
+import { graphql, Query } from "react-apollo";
+import { Card, Input, Layout } from "antd";
+import Section from "./Section";
 
 const { Search } = Input;
-const { Header, Content } = Layout;
-const listPosts = gql`
-  query listPosts {
-    singlePost(id: 456) {
+const { Header } = Layout;
+
+const GET_SINGLE_POST = gql`
+  query GetSinglePost($id: ID!) {
+    singlePost(id: $id) {
       id
       title
     }
   }
-
-  # query listPosts {
-  #   matchingTitlePost(title: "Made in Dynamo") {
-  #     title
-  #   }
-  # }
 `;
 
 class App extends Component {
+  state = {
+    currentId: null
+  };
+
   render() {
-    console.log("app", this.props);
-    const { items = [], isLoading } = this.props;
+    const { currentId } = this.state;
     return (
-      <Layout>
+      <Layout style={{ minHeight: "100vh" }}>
         <Header>
           <div style={{ maxWidth: "960px", margin: "auto" }}>
             <Search
               placeholder="Post ID"
               enterButton="Search"
               size="large"
-              onSearch={value => console.log(value)}
+              onSearch={value => {
+                this.setState(() => ({ currentId: value }));
+              }}
             />
           </div>
         </Header>
-        <Content>
-          <div style={{ maxWidth: "960px", margin: "50px auto" }}>
-            <Row gutter={24}>
-              <Col span={12}>
-                {items.map(({ id, title, description }) => (
-                  <Card key={id} title={title}>
-                    <p>{description}</p>
-                  </Card>
-                ))}
-              </Col>
-            </Row>
-            {isLoading && (
-              <Row gutter={24}>
-                <Col
-                  span={24}
-                  style={{
-                    display: "flex",
-                    justifyContent: "center",
-                    margin: "50px 0 0"
-                  }}
-                >
-                  <Spin />
-                </Col>
-              </Row>
-            )}
-          </div>
-        </Content>
+        {/* The query need "some" kind of content e.g a single space otherwise
+        the GraphQL will error out and not recover (as am ID is required). */}
+        <Query query={GET_SINGLE_POST} variables={{ id: currentId || " " }}>
+          {({ loading, error, data = {} }) => {
+            console.log({ loading, error, data });
+            const singlePost = data.singlePost || {};
+            const { id, title, description } = singlePost;
+
+            return (
+              <Section
+                isLoading={loading}
+                isError={error}
+                isEmpty={!error && !(id && title)}
+                isSuccess={!error && id && title}
+              >
+                <Card key={id} title={title}>
+                  <p>{description}</p>
+                </Card>
+              </Section>
+            );
+          }}
+        </Query>
       </Layout>
     );
   }
 }
 
-// export default App;
-export default graphql(listPosts, {
-  options: {
-    fetchPolicy: "cache-and-network"
-  },
-  props: ({ data }, props) =>
-    console.log("query", data) || {
-      ...props,
-      items: [data.singlePost],
-      isLoading: data.loading
-    }
-})(App);
+export default App;
+
+// export default graphql(GET_SINGLE_POST, {
+//   options: {
+//     fetchPolicy: "cache-and-network"
+//   },
+//   props: ({ data }, props) =>
+//     console.log("query", data) || {
+//       ...props,
+//       items: [data.singlePost],
+//       isLoading: data.loading
+//     }
+// })(App);
