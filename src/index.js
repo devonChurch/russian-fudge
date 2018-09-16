@@ -9,11 +9,11 @@ import "antd/dist/antd.css";
 
 const client = new AWSAppSyncClient({
   url:
-    "https://wmbba72ntbgfdgzavbt2al4u2e.appsync-api.us-east-1.amazonaws.com/graphql",
+    "https://sm2vylp2jbdbhk4kuu2363znw4.appsync-api.us-east-1.amazonaws.com/graphql",
   region: "us-east-1",
   auth: {
     type: AUTH_TYPE.API_KEY,
-    apiKey: "da2-ln5vcdp2oje75ptstwgrdxv7a4",
+    apiKey: "da2-euwo6kiwpjfvxg2tcunxiuc5qi",
     disableOffline: true
   }
 });
