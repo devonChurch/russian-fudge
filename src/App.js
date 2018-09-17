@@ -8,7 +8,7 @@ import Section from "./Section";
 const { Search } = Input;
 const { Header } = Layout;
 
-const GET_SINGLE_ITEM = gql`
+const GET_SINGLE_FOOD = gql`
   query getFoodItem($id: ID!) {
     getFoodItem(id: $id) {
       id
@@ -17,6 +17,21 @@ const GET_SINGLE_ITEM = gql`
       href
       icon
       title
+    }
+  }
+`;
+
+const GET_ALL_VEGETABLES = gql`
+  query listFoodItems($title: String!) {
+    listFoodItems(filter: { title: { eq: $title } }, limit: 5) {
+      items {
+        id
+        category
+        description
+        href
+        icon
+        title
+      }
     }
   }
 `;
@@ -44,30 +59,37 @@ class App extends Component {
         </Header>
         {/* The query need "some" kind of content e.g a single space otherwise
         the GraphQL will error out and not recover (as am ID is required). */}
-        <Query query={GET_SINGLE_ITEM} variables={{ id: currentId || " " }}>
+        {/* <Query query={GET_SINGLE_FOOD} variables={{ id: currentId || " " }}> */}
+        <Query
+          query={GET_ALL_VEGETABLES}
+          variables={{ title: currentId || " " }}
+        >
           {({ loading, error, data = {} }) => {
             console.log({ loading, error, data });
-            const item = data.getFoodItem || {};
-            const { id, title, category, description, href, icon } = item;
+            const items =
+              (data.listFoodItems && data.listFoodItems.items) || [];
+            const hasItems = Boolean(items.length);
 
             return (
               <Section
                 isLoading={loading}
                 isError={error}
-                isEmpty={!error && !(id && title)}
-                isSuccess={!error && id && title}
+                isEmpty={!error && !hasItems}
+                isSuccess={!error && hasItems}
               >
-                <Card key={id} title={`${icon} ${upperFirst(title)}`}>
-                  <div style={{ marginBottom: "15px" }}>
-                    <Tag>{category}</Tag>
-                  </div>
-                  <p>{description}</p>
-                  <p>
-                    <Button type="primary" ghost href={href}>
-                      See More
-                    </Button>
-                  </p>
-                </Card>
+                {items.map(
+                  ({ id, title, category, description, href, icon }) => (
+                    <Card key={id} title={`${icon} ${upperFirst(title)}`}>
+                      <div style={{ marginBottom: "15px" }}>
+                        <Tag>{category}</Tag>
+                      </div>
+                      <p>{description}</p>
+                      <Button type="primary" ghost href={href}>
+                        See More
+                      </Button>
+                    </Card>
+                  )
+                )}
               </Section>
             );
           }}
