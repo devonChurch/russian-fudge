@@ -1,9 +1,10 @@
 import React, { Component } from "react";
 import gql from "graphql-tag";
-import { graphql, Query } from "react-apollo";
+import { graphql, Query, Mutation } from "react-apollo";
 import { Card, Input, Layout, Button, Tag } from "antd";
 import upperFirst from "lodash.upperfirst";
 import Section from "./Section";
+import CreateModal from "./CreateModal";
 
 const { Search } = Input;
 const { Header } = Layout;
@@ -36,25 +37,82 @@ const GET_ALL_VEGETABLES = gql`
   }
 `;
 
+const CREATE_FOOD = gql`
+  mutation createFoodItem(
+    $title: String!
+    $category: String!
+    $description: String!
+    $href: String!
+    $icon: String!
+  ) {
+    createFoodItem(
+      input: {
+        title: $title
+        category: $category
+        description: $description
+        href: $href
+        icon: $icon
+      }
+    ) {
+      id
+      title
+      category
+      description
+      href
+      icon
+    }
+  }
+`;
+
+const resetModalFormState = () => ({
+  isModalOpen: false
+});
+
+const resetSearchBarState = () => ({
+  searchValue: ""
+});
+
 class App extends Component {
   state = {
-    currentId: null
+    ...resetSearchBarState(),
+    ...resetModalFormState()
+  };
+
+  handleModalOpen = () => {
+    this.setState(() => ({
+      ...resetModalFormState(),
+      isModalOpen: true
+    }));
+  };
+
+  handleModalClose = () => {
+    this.setState(() => ({ isModalOpen: false }));
   };
 
   render() {
-    const { currentId } = this.state;
+    const { searchValue, isModalOpen } = this.state;
     return (
       <Layout style={{ minHeight: "100vh" }}>
         <Header>
-          <div style={{ maxWidth: "960px", margin: "auto" }}>
+          <div
+            style={{
+              alignItems: "center",
+              display: "flex",
+              maxWidth: "960px",
+              margin: "auto"
+            }}
+          >
             <Search
-              placeholder="Post ID"
+              placeholder="Search for a food"
               enterButton="Search"
               size="large"
               onSearch={value => {
-                this.setState(() => ({ currentId: value }));
+                this.setState(() => ({ searchValue: value }));
               }}
             />
+            <div style={{ marginLeft: "20px" }}>
+              <Button icon="plus" size="large" onClick={this.handleModalOpen} />
+            </div>
           </div>
         </Header>
         {/* The query need "some" kind of content e.g a single space otherwise
@@ -62,7 +120,7 @@ class App extends Component {
         {/* <Query query={GET_SINGLE_FOOD} variables={{ id: currentId || " " }}> */}
         <Query
           query={GET_ALL_VEGETABLES}
-          variables={{ title: currentId || " " }}
+          variables={{ title: searchValue || " " }}
         >
           {({ loading, error, data = {} }) => {
             console.log({ loading, error, data });
@@ -94,6 +152,19 @@ class App extends Component {
             );
           }}
         </Query>
+        <Mutation mutation={CREATE_FOOD}>
+          {(handleCreateFood, mutationParams) =>
+            console.log({ handleCreateFood, mutationParams }) || (
+              <CreateModal
+                {...{
+                  isModalOpen,
+                  handleCreateFood,
+                  handleModalClose: this.handleModalClose
+                }}
+              />
+            )
+          }
+        </Mutation>
       </Layout>
     );
   }
