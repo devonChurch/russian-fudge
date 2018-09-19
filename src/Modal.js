@@ -1,13 +1,13 @@
 import React, { Component } from "react";
 import ReactDOM from "react-dom";
-import { Form, Input, Radio, Modal, Button } from "antd";
+import { Form, Input, Radio, Button, Modal as AntdModal } from "antd";
 
 const FormItem = Form.Item;
 const RadioButton = Radio.Button;
 const RadioGroup = Radio.Group;
 const { TextArea } = Input;
 
-class CreateModal extends Component {
+class Modal extends Component {
   $form = React.createRef();
 
   handleModalSubmit = async event => {
@@ -21,7 +21,7 @@ class CreateModal extends Component {
       formKeyValues[key] = value;
     }
 
-    console.log("formKeyValues", formKeyValues);
+    formKeyValues.title = formKeyValues.title.toLowerCase();
 
     handleCreateFood({
       variables: formKeyValues,
@@ -39,7 +39,7 @@ class CreateModal extends Component {
     const { isModalOpen, handleModalClose } = this.props;
 
     return (
-      <Modal
+      <AntdModal
         title="Create a new food"
         visible={isModalOpen}
         onOk={this.handleModalSubmit}
@@ -68,48 +68,9 @@ class CreateModal extends Component {
             <Input name="href" />
           </FormItem>
         </Form>
-      </Modal>
+      </AntdModal>
     );
   }
 }
 
-// const CreateModal = ({
-//   isModalOpen,
-//   modalTitle,
-//   modalCategory,
-//   modalDescription,
-//   modalHref,
-//   modalIcon,
-//   handleModalClose,
-//   handleModalSubmit
-// }) => (
-//   <Modal
-//     title="Basic Modal"
-//     visible={isModalOpen}
-//     onOk={handleModalSubmit}
-//     onCancel={handleModalClose}
-//   >
-//     <Form onSubmit={this.handleModalSubmit}>
-//       <FormItem label="Food">
-//         <Input name="food" />
-//       </FormItem>
-//       <FormItem label="Category">
-//         <RadioGroup defaultValue="fruit">
-//           <RadioButton value="fruit">Fruit</RadioButton>
-//           <RadioButton value="vegetable">Vegetable</RadioButton>
-//         </RadioGroup>
-//       </FormItem>
-//       <FormItem label="Description">
-//         <TextArea autosize={{ minRows: 2, maxRows: 6 }} />
-//       </FormItem>
-//       <FormItem label="Icon">
-//         <Input />
-//       </FormItem>
-//       <FormItem label="External Link">
-//         <Input />
-//       </FormItem>
-//     </Form>
-//   </Modal>
-// );
-
-export default CreateModal;
+export default Modal;

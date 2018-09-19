@@ -2,12 +2,10 @@ import React, { Component } from "react";
 import gql from "graphql-tag";
 import { graphql, Query, Mutation } from "react-apollo";
 import { Card, Input, Layout, Button, Tag } from "antd";
-import upperFirst from "lodash.upperfirst";
 import Section from "./Section";
-import CreateModal from "./CreateModal";
-
-const { Search } = Input;
-const { Header } = Layout;
+import Food from "./Food";
+import Modal from "./Modal";
+import Header from "./Header";
 
 const GET_SINGLE_FOOD = gql`
   query getFoodItem($id: ID!) {
@@ -89,41 +87,38 @@ class App extends Component {
     this.setState(() => ({ isModalOpen: false }));
   };
 
+  handleSearchInput = value => {
+    this.setState(() => ({ searchValue: value }));
+  };
+
   render() {
+    const { handleSearchInput, handleModalOpen, handleModalClose } = this;
     const { searchValue, isModalOpen } = this.state;
     return (
       <Layout style={{ minHeight: "100vh" }}>
-        <Header>
-          <div
-            style={{
-              alignItems: "center",
-              display: "flex",
-              maxWidth: "960px",
-              margin: "auto"
-            }}
-          >
-            <Search
-              placeholder="Search for a food"
-              enterButton="Search"
-              size="large"
-              onSearch={value => {
-                this.setState(() => ({ searchValue: value }));
-              }}
-            />
-            <div style={{ marginLeft: "20px" }}>
-              <Button icon="plus" size="large" onClick={this.handleModalOpen} />
-            </div>
-          </div>
-        </Header>
-        {/* The query need "some" kind of content e.g a single space otherwise
-        the GraphQL will error out and not recover (as am ID is required). */}
-        {/* <Query query={GET_SINGLE_FOOD} variables={{ id: currentId || " " }}> */}
+        {/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * /
+           _                   _           
+          | |_   ___  __ _  __| | ___  _ _ 
+          | ' \ / -_)/ _` |/ _` |/ -_)| '_|
+          |_||_|\___|\__,_|\__,_|\___||_|    
+
+        / * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */}
+        <Header {...{ handleSearchInput, handleModalOpen }} />
+
+        {/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * /
+                         _              _   
+           __  ___  _ _ | |_  ___  _ _ | |_ 
+          / _|/ _ \| ' \|  _|/ -_)| ' \|  _|
+          \__|\___/|_||_|\__|\___||_||_|\__|  
+
+          The query need "some" kind of content e.g a single space otherwise
+          the GraphQL will error out and not recover (as am ID is required).
+        / * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */}
         <Query
           query={GET_ALL_VEGETABLES}
           variables={{ title: searchValue || " " }}
         >
           {({ loading, error, data = {} }) => {
-            console.log({ loading, error, data });
             const items =
               (data.listFoodItems && data.listFoodItems.items) || [];
             const hasItems = Boolean(items.length);
@@ -135,31 +130,29 @@ class App extends Component {
                 isEmpty={!error && !hasItems}
                 isSuccess={!error && hasItems}
               >
-                {items.map(
-                  ({ id, title, category, description, href, icon }) => (
-                    <Card key={id} title={`${icon} ${upperFirst(title)}`}>
-                      <div style={{ marginBottom: "15px" }}>
-                        <Tag>{category}</Tag>
-                      </div>
-                      <p>{description}</p>
-                      <Button type="primary" ghost href={href}>
-                        See More
-                      </Button>
-                    </Card>
-                  )
-                )}
+                {items.map(item => (
+                  <Food {...item} />
+                ))}
               </Section>
             );
           }}
         </Query>
+
+        {/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * /
+                          _        _ 
+           _ __   ___  __| | __ _ | |
+          | '  \ / _ \/ _` |/ _` || |
+          |_|_|_|\___/\__,_|\__,_||_|  
+
+        / * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */}
         <Mutation mutation={CREATE_FOOD}>
           {(handleCreateFood, mutationParams) =>
             console.log({ handleCreateFood, mutationParams }) || (
-              <CreateModal
+              <Modal
                 {...{
                   isModalOpen,
                   handleCreateFood,
-                  handleModalClose: this.handleModalClose
+                  handleModalClose
                 }}
               />
             )
