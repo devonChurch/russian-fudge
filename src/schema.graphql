@@ -1,0 +1,119 @@
+﻿type FoodItem {
+  category: String!
+  description: String!
+  href: String!
+  icon: String!
+  id: ID!
+  title: String!
+}
+
+type FoodItemConnection {
+  items: [FoodItem]
+  nextToken: String
+}
+
+type Mutation {
+  createFoodItem(input: CreateFoodItemInput!): FoodItem
+  deleteFoodItem(input: DeleteFoodItemInput!): FoodItem
+  updateFoodItem(input: UpdateFoodItemInput!): FoodItem
+}
+
+type Query {
+  getFoodItem(id: ID!): FoodItem
+  listFoodItems(filter: TableFoodItemFilterInput, limit: Int, nextToken: String): FoodItemConnection
+  queryFoodItemsByTitleCategoryIndex(after: String, first: Int, title: String!): FoodItemConnection
+}
+
+type Subscription {
+  onCreateFoodItem(category: String, description: String, href: String, id: ID, title: String): FoodItem
+    @aws_subscribe(mutations:["createFoodItem"])
+  onDeleteFoodItem(category: String, description: String, href: String, id: ID, title: String): FoodItem
+    @aws_subscribe(mutations:["deleteFoodItem"])
+  onUpdateFoodItem(category: String, description: String, href: String, id: ID, title: String): FoodItem
+    @aws_subscribe(mutations:["updateFoodItem"])
+}
+
+input CreateFoodItemInput {
+  category: String!
+  description: String!
+  href: String!
+  icon: String!
+  title: String!
+}
+
+input DeleteFoodItemInput {
+  id: ID!
+}
+
+input TableBooleanFilterInput {
+  eq: Boolean
+  ne: Boolean
+}
+
+input TableFloatFilterInput {
+  between: [Float]
+  contains: Float
+  eq: Float
+  ge: Float
+  gt: Float
+  le: Float
+  lt: Float
+  ne: Float
+  notContains: Float
+}
+
+input TableFoodItemFilterInput {
+  category: TableStringFilterInput
+  description: TableStringFilterInput
+  href: TableStringFilterInput
+  icon: TableStringFilterInput
+  id: TableIDFilterInput
+  title: TableStringFilterInput
+}
+
+input TableIDFilterInput {
+  beginsWith: ID
+  between: [ID]
+  contains: ID
+  eq: ID
+  ge: ID
+  gt: ID
+  le: ID
+  lt: ID
+  ne: ID
+  notContains: ID
+}
+
+input TableIntFilterInput {
+  between: [Int]
+  contains: Int
+  eq: Int
+  ge: Int
+  gt: Int
+  le: Int
+  lt: Int
+  ne: Int
+  notContains: Int
+}
+
+input TableStringFilterInput {
+  beginsWith: String
+  between: [String]
+  contains: String
+  eq: String
+  ge: String
+  gt: String
+  le: String
+  lt: String
+  ne: String
+  notContains: String
+}
+
+input UpdateFoodItemInput {
+  category: String
+  description: String
+  href: String
+  icon: String
+  id: ID!
+  title: String
+}
