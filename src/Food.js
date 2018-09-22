@@ -1,9 +1,12 @@
-import React, { Component } from "react";
+import React from "react";
 import { Card, Button, Tag } from "antd";
 import upperFirst from "lodash.upperfirst";
 
-const Food = ({ id, title, category, description, href, icon }) => (
-  <Card key={id} title={`${icon} ${upperFirst(title)}`}>
+const Food = ({ title, category, description, href, icon }) => (
+  <Card
+    title={`${icon} ${upperFirst(title)}`}
+    style={{ marginBottom: "20px", maxWidth: "500px" }}
+  >
     <div style={{ marginBottom: "15px" }}>
       <Tag>{category}</Tag>
     </div>

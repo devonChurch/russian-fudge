@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import ReactDOM from "react-dom";
-import { Form, Input, Radio, Button, Modal as AntdModal } from "antd";
+import { Form, Input, Radio, Modal as AntdModal } from "antd";
 
 const FormItem = Form.Item;
 const RadioButton = Radio.Button;

@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import gql from "graphql-tag";
-import { graphql, Query, Mutation } from "react-apollo";
-import { Card, Input, Layout, Button, Tag } from "antd";
+import { Query, Mutation } from "react-apollo";
+import { Layout } from "antd";
 import Section from "./Section";
 import Food from "./Food";
 import Modal from "./Modal";
@@ -20,9 +20,13 @@ const GET_SINGLE_FOOD = gql`
   }
 `;
 
+// NOTE: The "limit" value is not a representation of how many values are returned
+// it influences how many items in the database are queried. In that regard there
+// can be situations where values that should be returned are not as the fall
+// outside the bounds of the "limit".
 const GET_ALL_VEGETABLES = gql`
   query listFoodItems($title: String!) {
-    listFoodItems(filter: { title: { eq: $title } }, limit: 5) {
+    listFoodItems(filter: { title: { contains: $title } }) {
       items {
         id
         category
@@ -96,16 +100,15 @@ class App extends Component {
     const { searchValue, isModalOpen } = this.state;
     return (
       <Layout style={{ minHeight: "100vh" }}>
-        {/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * /
+        {/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
            _                   _           
           | |_   ___  __ _  __| | ___  _ _ 
           | ' \ / -_)/ _` |/ _` |/ -_)| '_|
           |_||_|\___|\__,_|\__,_|\___||_|    
-
-        / * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */}
+                                                                              */}
         <Header {...{ handleSearchInput, handleModalOpen }} />
 
-        {/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * /
+        {/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
                          _              _   
            __  ___  _ _ | |_  ___  _ _ | |_ 
           / _|/ _ \| ' \|  _|/ -_)| ' \|  _|
@@ -113,7 +116,7 @@ class App extends Component {
 
           The query need "some" kind of content e.g a single space otherwise
           the GraphQL will error out and not recover (as am ID is required).
-        / * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */}
+                                                                              */}
         <Query
           query={GET_ALL_VEGETABLES}
           variables={{ title: searchValue || " " }}
@@ -130,33 +133,30 @@ class App extends Component {
                 isEmpty={!error && !hasItems}
                 isSuccess={!error && hasItems}
               >
-                {items.map(item => (
-                  <Food {...item} />
+                {items.map(({ id, ...item }) => (
+                  <Food {...item} key={id} />
                 ))}
               </Section>
             );
           }}
         </Query>
 
-        {/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * /
+        {/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
                           _        _ 
            _ __   ___  __| | __ _ | |
           | '  \ / _ \/ _` |/ _` || |
           |_|_|_|\___/\__,_|\__,_||_|  
-
-        / * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */}
+                                                                              */}
         <Mutation mutation={CREATE_FOOD}>
-          {(handleCreateFood, mutationParams) =>
-            console.log({ handleCreateFood, mutationParams }) || (
-              <Modal
-                {...{
-                  isModalOpen,
-                  handleCreateFood,
-                  handleModalClose
-                }}
-              />
-            )
-          }
+          {(handleCreateFood, mutationParams) => (
+            <Modal
+              {...{
+                isModalOpen,
+                handleCreateFood,
+                handleModalClose
+              }}
+            />
+          )}
         </Mutation>
       </Layout>
     );

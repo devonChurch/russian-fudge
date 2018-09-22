@@ -1,13 +1,15 @@
-import React, { Component } from "react";
-import { Card, Col, Row, Input, Layout, Spin, Alert } from "antd";
+import React from "react";
+import { Col, Row, Layout, Spin, Alert } from "antd";
 
 const { Content } = Layout;
 
 const Section = ({ isLoading, isError, isEmpty, isSuccess, children }) => (
   <Content>
-    <section style={{ maxWidth: "960px", margin: "50px auto" }}>
+    <section
+      style={{ maxWidth: "960px", margin: "50px auto", padding: "0 50px" }}
+    >
       <Row gutter={24}>
-        {isSuccess && <Col span={12}>{children}</Col>}
+        {isSuccess && <Col span={24}>{children}</Col>}
         {isEmpty && (
           <Col span={12}>
             <Alert message="No match found" type="info" showIcon />
